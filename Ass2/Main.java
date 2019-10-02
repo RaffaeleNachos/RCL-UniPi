@@ -15,7 +15,7 @@ public class Main {
 				taskCounter++;
 				externalQueue.add(task);
 			}
-			while(posteItaliane.freeQueue()<10 && externalQueue.isEmpty() == false) {
+			if(posteItaliane.freeQueue()<10 && externalQueue.isEmpty() == false) {
 				try{
 					posteItaliane.executeTask(externalQueue.poll());
 				} catch (Exception e) {
