@@ -1,5 +1,10 @@
 import java.util.concurrent.*;
 
+/**
+ * @author Raffaele Apetino - N.M. 549220
+ *
+ */
+
 public class PostOffice{
 	
 	private ThreadPoolExecutor executor;
@@ -7,7 +12,7 @@ public class PostOffice{
 	
 	public PostOffice(int nOffWorker, int dimQueue) {
 		myQueue = new ArrayBlockingQueue<Runnable>(dimQueue);
-		executor = new ThreadPoolExecutor(nOffWorker, nOffWorker, 0L, TimeUnit.MILLISECONDS, myQueue);
+		executor = new ThreadPoolExecutor(nOffWorker, nOffWorker, 60L, TimeUnit.MILLISECONDS, myQueue);
 		System.out.println(executor.getPoolSize());
 	}
 	

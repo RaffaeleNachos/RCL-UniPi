@@ -1,3 +1,7 @@
+/**
+ * @author Raffaele Apetino - N.M. 549220
+ *
+ */
 
 public class Task implements Runnable{
 	
@@ -10,8 +14,8 @@ public class Task implements Runnable{
 	@Override
 	public void run() {
 		Long duration = (long) (Math.random()*5000);
-		System.out.println(duration);
-		try{
+		//System.out.println(duration);
+		try {
 			System.out.println(name + " eseguito da " + Thread.currentThread().getName() + " sleeping for: " + duration + "ms");
 			Thread.sleep(duration);
 		} catch (InterruptedException e) {
