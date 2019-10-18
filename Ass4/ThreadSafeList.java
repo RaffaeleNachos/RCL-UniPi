@@ -41,7 +41,10 @@ public class ThreadSafeList {
 	}
 	
 	public void stop() {
+		myLock.lock();
 		hasFinished.set(true);
+		notEmpity.signalAll();
+		myLock.unlock();
 	}
 	
 	public boolean getStatus() {

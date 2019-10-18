@@ -21,6 +21,7 @@ public class Consumer extends Thread{
 			}
 			if (myList.peekDir().equals("end")) {
 				System.out.println("ho trovato end esco " + Thread.currentThread().getName());
+				myList.myLock.unlock();
 				return;
 			}
 			File file = new File(myList.getDir());

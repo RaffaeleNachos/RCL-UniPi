@@ -19,7 +19,6 @@ public class Producer extends Thread{
 	public void recursiveDir(String path) {
 		File file = new File(path);
         File[] list = file.listFiles();
-        if (list == null) return;
         for (File f : list) {
             if (f.isDirectory()) {
             	myList.addDir(f.getAbsolutePath());
