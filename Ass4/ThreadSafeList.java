@@ -1,9 +1,12 @@
+//Raffaele Apetino - 549220
+
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ThreadSafeList {
+	//Implementazione della mia LinkedList Thread Safe
 	
 	LinkedList<String> dirList;
 	ReentrantLock myLock;
@@ -13,38 +16,24 @@ public class ThreadSafeList {
 	public ThreadSafeList() {
 		dirList = new LinkedList<>();
 		myLock = new ReentrantLock();
-		notEmpity = myLock.newCondition();
+		notEmpity = myLock.newCondition(); //condition variable che mi farà ciclare i cosnumatori se la lista è vuota
 		hasFinished = new AtomicBoolean(false);
 	}
 	
 	public String peekDir() {
-		String tmp;
-		myLock.lock();
-		tmp = dirList.peekLast();
-		myLock.unlock();
-		return tmp;
+		return dirList.peekLast();
 	}
 	
 	public String getDir() {
-		String tmp;
-		myLock.lock();
-		tmp = dirList.pollLast();
-		myLock.unlock();
-		return tmp;
+		return dirList.pollLast();
 	}
 	
 	public void addDir(String dir) {
-		myLock.lock();
 		dirList.addFirst(dir);
-		notEmpity.signalAll();
-		myLock.unlock();
 	}
 	
 	public void stop() {
-		myLock.lock();
 		hasFinished.set(true);
-		notEmpity.signalAll();
-		myLock.unlock();
 	}
 	
 	public boolean getStatus() {
