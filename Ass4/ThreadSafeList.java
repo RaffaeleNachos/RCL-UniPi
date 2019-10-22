@@ -17,17 +17,20 @@ public class ThreadSafeList {
 		dirList = new LinkedList<>();
 		myLock = new ReentrantLock();
 		notEmpity = myLock.newCondition(); //condition variable che mi farà ciclare i cosnumatori se la lista è vuota
-		hasFinished = new AtomicBoolean(false);
+		hasFinished = new AtomicBoolean(false); //variabile booleana che avvisa i consumatori che il produttore ha terminato
 	}
 	
+	//returns: restituisce l'ultimo elemento della lista senza rimuoverlo
 	public String peekDir() {
 		return dirList.peekLast();
 	}
 	
+	//returns: restuisce l'ultimoi elemento della lista e lo rimuove
 	public String getDir() {
 		return dirList.pollLast();
 	}
 	
+	//effects: aggiunge in testa
 	public void addDir(String dir) {
 		dirList.addFirst(dir);
 	}

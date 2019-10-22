@@ -13,7 +13,7 @@ public class Consumer extends Thread{
 	public void run() {
 		while (myList.getStatus()==false) { //finchè il produttore non ha terminato
 			myList.myLock.lock();
-			while(myList.dirList.isEmpty()) {
+			while(myList.dirList.isEmpty()) { //se la lista è vuota aspetto
 				try {
 					myList.notEmpity.await();
 				} catch (InterruptedException e) {
@@ -22,7 +22,7 @@ public class Consumer extends Thread{
 				}
 			}
 			if (myList.peekDir().equals("end")) { 
-				//se l'elemento trovato è la stringa "end" non ci sono più directory da gestire e termino
+				//se l'elemento della lista è la stringa "end" non ci sono più directory da gestire quindi termino
 				System.out.println("ho trovato end esco " + Thread.currentThread().getName());
 				myList.myLock.unlock();
 				return;
