@@ -1,5 +1,6 @@
+//Raffaele Apetino 549220
+
 import java.util.HashMap;
-import java.util.concurrent.*;
 
 public class Contatori {
 	//struttura dati che si occupa della sincronizzazioni sulle variabili

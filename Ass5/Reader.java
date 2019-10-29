@@ -1,3 +1,5 @@
+//Raffaele Apetino 549220
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -47,18 +49,23 @@ public class Reader extends Thread{
 	public String getFileStringy() throws IOException {
 		//creo un channel per la lettura del file
 		FileChannel inChannel = FileChannel.open(Paths.get("banca.json"), StandardOpenOption.READ);
-		ByteBuffer buffer = ByteBuffer.allocateDirect(8192*8192);
+		ByteBuffer buffer = ByteBuffer.allocateDirect(1024*1024);
         boolean stop = false;
+        String tmp = "";
         while (!stop) {
         	int bytesRead = inChannel.read(buffer);
         	if (bytesRead==-1) {
         		stop=true;
         	}
+        	//flippo il puntatore all'inizio per la lettura decodificata
+        	buffer.flip();
+            while (buffer.hasRemaining()) {
+            	tmp = tmp + StandardCharsets.UTF_8.decode(buffer).toString();
+            }
+            //riflippo per scrittura
+            buffer.flip();
         }
         inChannel.close();
-        //flippo il puntatore all'inizio per la lettura decodificata
-        buffer.flip();
-        String tmp = StandardCharsets.UTF_8.decode(buffer).toString();
         return tmp;
 	}
 	
