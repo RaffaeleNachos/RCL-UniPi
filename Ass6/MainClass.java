@@ -2,7 +2,10 @@
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
@@ -36,7 +39,7 @@ public class MainClass {
 						//tokenizzo l'header e prendo il secondo elemento della stringa, il quale indica il file richiesto
 						String [] token;
 						token = header.split("\\s");
-						String reqPath = "." + token[1];
+						String reqPath = System.getProperty("user.dir") + token[1];
 						//creo il path e uso metodi statici di Files per ottenere le informazioni su di esso
 						Path pt = Paths.get(reqPath);
 						if (Files.exists(pt) && !Files.isDirectory(pt)) {
@@ -80,8 +83,17 @@ public class MainClass {
 			//scrivo header
 			out.write(risp.getBytes());
 			File file = new File(filename);
-			//scrivo file
 			Files.copy(file.toPath(), out);
+			//In alternativa è possibile utilizzare la mia implementazione:
+			/*
+			InputStream in = new FileInputStream(file);
+			int count;
+			byte[] buffer = new byte[1024];
+			while ((count = in.read(buffer)) > 0){
+				out.write(buffer, 0, count);
+			}
+			in.close();
+			*/
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
