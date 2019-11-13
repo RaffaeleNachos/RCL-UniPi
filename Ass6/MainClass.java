@@ -15,7 +15,7 @@ public class MainClass {
 	
 	public static void main(String[] args) {
 		//Testato su ambiente MacOS
-		//Utilizzo: lanciare java MainClass da terminale e successivamente
+		//Utilizzo: lanciare "java MainClass" da terminale e successivamente
 		//aprire un browser web. Richiedere quindi i file digitando:
 		//localhost:6789/filename
 		
@@ -24,6 +24,7 @@ public class MainClass {
 			while (true) {
 				//creazione socket comunicazione client
 				try (Socket connection = server.accept()) {
+					System.out.println("Ricevuta nuova richiesta");
 					OutputStream out = connection.getOutputStream();
 					//uso un BufferedReader perche' andro' a leggere un header HTTP
 					BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -31,6 +32,7 @@ public class MainClass {
 					String header = reader.readLine();
 					//il mio server gestisce solamente richieste GET 
 					if (header.startsWith("GET")){
+						System.out.println("La richiesta è di tipo GET");
 						//tokenizzo l'header e prendo il secondo elemento della stringa, il quale indica il file richiesto
 						String [] token;
 						token = header.split("\\s");
@@ -40,17 +42,23 @@ public class MainClass {
 						if (Files.exists(pt) && !Files.isDirectory(pt)) {
 							//probeContentType restituisce informazioni sul file in base standard MIME
 							positiveResponse(reqPath, out, Files.probeContentType(pt), Files.size(pt));
+							System.out.println("Risposta positiva inviata");
 						} else {
 							negativeResponse(out);
+							System.out.println("Risposta negativa inviata");
 						}
 					}
 					else {
+						System.out.println("Richiesta non gestibile");
 						//risposta per le richieste non gestite come POST, DELETE ecc...
 						notResponse(out);
 					}
 					//chiudo la connessione rendendola non persistente
 					//cioè ad ogni richiesta viene creata una nuova socket
-					connection.close();
+					//connection.close(); eseguita dalla try-catch-with-resources
+					System.out.println("Chiudo connessione");
+					out.close();
+					reader.close();
 				} catch (IOException ex) { 
 					ex.printStackTrace();
 				} 
