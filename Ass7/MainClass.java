@@ -40,8 +40,8 @@ public class MainClass {
 		while (true) { 
 			try {
 				//seleziono il canale disponibile (bloccante)
-				System.out.println(selector.keys());
-				System.out.println(selector.selectedKeys());
+				//System.out.println(selector.keys());
+				//System.out.println(selector.selectedKeys());
 				System.out.println("Server | Aspetto sulla select");
 				selector.select();
 			} catch (IOException ex) {
@@ -95,7 +95,13 @@ public class MainClass {
 						ByteBuffer input = ByteBuffer.allocate(8);
 						input.clear();
 						int bRead = client.read(input);
-						if (bRead < 8 ) {
+						if (bRead == 8 /*e nella socket c'è ancora qualcosa*/){
+							System.out.println("Server | leggo: " + bRead + " bytes");
+							input.flip();
+							read = read + StandardCharsets.UTF_8.decode(input).toString();;
+							key.attach(read);
+						}
+						else if (bRead < 8 /*e nella socket non c'è più nulla*/ ) {
 							System.out.println("Server | leggo: " + bRead + " bytes");
 							input.flip();
 							read = read + StandardCharsets.UTF_8.decode(input).toString();
@@ -106,12 +112,6 @@ public class MainClass {
 						else if (bRead == -1) {
 							System.out.println("Server | socket chiusa dal client");
 							key.cancel();
-						}
-						else {
-							System.out.println("Server | leggo: " + bRead + " bytes");
-							input.flip();
-							read = read + StandardCharsets.UTF_8.decode(input).toString();;
-							key.attach(read);
 						}
 					}
 				} catch (IOException ex) {
