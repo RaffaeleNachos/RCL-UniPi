@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.ByteBuffer;
@@ -12,9 +10,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Set;
 
-public class MainClass {
+public class MyServer {
 	
 	public static int DEFAULT_PORT = 6789;
+	private static int DIM_BUFFER = 1024;
 
 	public static void main(String[] args) {
 		Selector selector = null;
@@ -25,21 +24,21 @@ public class MainClass {
 			//il SocketChannel è creato implicitamente
 			serverChannel = ServerSocketChannel.open();
 			serverChannel.configureBlocking(false);
-			//ottengo la socket associata al channel
+			//ottengo la socket del server associata al channel
 			serverSocket = serverChannel.socket();
-			//bindo la socket del server sulla porta 6789 e come indirizzo usa una wildcard standard che mi indica tutti gli indirizzi IP della macchina
+			//bindo la socket del server sulla porta 6789
+			//come indirizzo usa una wildcard standard che mi indica tutti gli indirizzi IP della macchina
 			InetSocketAddress address = new InetSocketAddress(DEFAULT_PORT);
 			serverSocket.bind(address);
 			//creo il mio selector e lo associo al channel
+			//per ora sto in ascolto solo sulla key (della socket del server) che identifica la accept
 			selector = Selector.open(); 
-			//per ora sto in ascolto solo sulla key che identifica la accept
 			serverChannel.register(selector, SelectionKey.OP_ACCEPT);
 		} catch (IOException ex) { 
 			ex.printStackTrace();
 		}
 		while (true) { 
 			try {
-				//seleziono il canale disponibile (bloccante)
 				//System.out.println(selector.keys());
 				//System.out.println(selector.selectedKeys());
 				System.out.println("Server | Aspetto sulla select");
@@ -48,13 +47,13 @@ public class MainClass {
 				ex.printStackTrace(); 
 				break;
 			}
-			//selectionkey entifica i tipi delle operazioni da gestire
+			//selectionkey identifica i tipi delle operazioni da gestire
 			//readyKeys identifica i canali pronti
 			Set <SelectionKey> readyKeys = selector.selectedKeys();
 			Iterator <SelectionKey> iterator = readyKeys.iterator();
 			while (iterator.hasNext()) {
 				SelectionKey key = (SelectionKey) iterator.next();
-				//esplicita rimozione chiave dal selectedSet
+				//esplicita rimozione chiave dal SelectedSet
 				iterator.remove();
 				try {
 					if (key.isAcceptable()) {
@@ -63,6 +62,7 @@ public class MainClass {
 						SocketChannel client = server.accept(); 
 						System.out.println("Connessione accettata verso: " + client); 
 						client.configureBlocking(false);
+						//creo una nuova chiave associata alla socket client
 						SelectionKey clientkey = client.register(selector, SelectionKey.OP_READ, null);
 					}
 					else if (key.isWritable()) {
@@ -71,18 +71,22 @@ public class MainClass {
 						String write = (String) key.attachment();
 						ByteBuffer end = ByteBuffer.wrap(write.getBytes());
 						int bWrite = client.write(end);
+						//se ho scritto tutto rimetto la chiave in read
 						if (bWrite == write.length()) {
-							write = "echoed by Server: ";
-							key.attach(write);
+							key.attach(null);
 							key.interestOps(SelectionKey.OP_READ);
 							System.out.println("Server | key impostata su read");
 						}
+						//se il client chiude la socket o termina la write restituisce -1
 						else if (bWrite == -1) {
 							key.cancel();
+							key.channel().close();
 							System.out.println("Server | socket chiusa dal client");
 						}
+						//se non ha scritto tutto
 						else {
 							System.out.println("Server | scrivo: " + bWrite + " bytes");
+							//la flip server per la decodifica
 							end.flip();
 							key.attach(StandardCharsets.UTF_8.decode(end).toString());
 						}
@@ -92,16 +96,18 @@ public class MainClass {
 						SocketChannel client = (SocketChannel) key.channel();
 						String read = (String) key.attachment();
 						if (read == null) read = "echoed by Server: ";
-						ByteBuffer input = ByteBuffer.allocate(8);
+						ByteBuffer input = ByteBuffer.allocate(DIM_BUFFER);
 						input.clear();
 						int bRead = client.read(input);
-						if (bRead == 8 /*e nella socket c'è ancora qualcosa*/){
+						//se il buffer è pieno ritorna a leggere al ciclo dopo
+						if (bRead == DIM_BUFFER){
 							System.out.println("Server | leggo: " + bRead + " bytes");
 							input.flip();
 							read = read + StandardCharsets.UTF_8.decode(input).toString();;
 							key.attach(read);
 						}
-						else if (bRead < 8 /*e nella socket non c'è più nulla*/ ) {
+						//se ho letto meno della dimensione ha letto tutto
+						else if (bRead < DIM_BUFFER) {
 							System.out.println("Server | leggo: " + bRead + " bytes");
 							input.flip();
 							read = read + StandardCharsets.UTF_8.decode(input).toString();
@@ -109,16 +115,20 @@ public class MainClass {
 							key.interestOps(SelectionKey.OP_WRITE);
 							System.out.println("Server | key impostata su write");
 						}
+						//se il client chiude la socket o termina, la read restituisce -1
 						else if (bRead == -1) {
-							System.out.println("Server | socket chiusa dal client");
 							key.cancel();
+							key.channel().close();
+							System.out.println("Server | socket chiusa dal client");
 						}
 					}
 				} catch (IOException ex) {
+					//in caso di exception cancello la chiave e chiudo il channel associato alla chiave
 					key.cancel();
 					try {
 						key.channel().close();
 					} catch (IOException e) {
+						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
