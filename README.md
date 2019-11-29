@@ -75,7 +75,9 @@ PING CLIENT:
 in cui seqno è il numero di sequenza del PING (tra 0-9) ed il timestamp (in millisecondi) indica quando il messaggio è stato inviato
 - non invia un nuovo PING fino che non ha ricevuto l'eco del PING precedente, oppure è scaduto un timeout.
 stampa ogni messaggio spedito al server ed il RTT del ping oppure un * se la risposta non è stata ricevuta entro 2 secondi
-- dopo che ha ricevuto la decima risposta (o dopo il suo timeout), il client stampa un riassunto
+- dopo che ha ricevuto la decima risposta (o dopo il suo timeout), il client stampa un riassunto simile a quello stampato dal PING UNIX
+---- PING Statistics ----
+10 packets transmitted, 7 packets received, 30% packet loss round-trip (ms) min/avg/max = 63/190.29/290
 - il RTT medio è stampato con 2 cifre dopo la virgola
 
 PING SERVER:
