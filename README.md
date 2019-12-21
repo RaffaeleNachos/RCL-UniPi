@@ -98,3 +98,8 @@ Il client può richiedere operazioni per:
 Il client inoltra le richieste al server tramite il meccanismo di RMI. Prevedere, per ogni possibile operazione una gestione di eventuali condizioni anomale (ad esempio la richiesta di registrazione ad una giornata e/o sessione inesistente oppure per la quale sono già stati coperti tutti gli spazi d’intervento)
 
 Il client è implementato come un processo ciclico che continua a fare richieste sincrone fino ad esaurire tutte le esigenze utente. Stabilire una opportuna condizione di terminazione del processo di richiesta. Client, server e registry possono essere eseguiti sullo stesso host.
+
+### Assegnamento 10
+Programmare un Server TimeServer, che invia su un gruppo di multicast "dategroup", ad intervalli regolari, la data e l’ora. 
+(attende tra un invio ed il successivo un intervallo di tempo simulata mediante il metodo sleep( )). 
+L’indirizzo IP di dategroup viene introdotto da linea di comando. Definire quindi un client TimeClient che si unisce a dategroup e riceve, per dieci volte consecutive, data ed ora, le visualizza, quindi termina.
